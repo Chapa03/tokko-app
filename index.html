@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tokko</title>
+<meta name="description" content="Todo Tokko: la app en Google Play, los vídeos en YouTube y el día a día en Instagram.">
+<meta name="theme-color" content="#070913">
+<meta property="og:title" content="Tokko">
+<meta property="og:description" content="¿Quién empieza? Que decida Tokko.">
+<meta property="og:image" content="https://chapa03.github.io/tokko-app/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.png">
+<style>
+/* Malla viva arriba (se toca y elige, como la app); debajo, la app a lo ancho y las dos redes. */
+@font-face { font-family: Tokko; src: url(tokko.ttf); font-display: swap; }
+@font-face { font-family: Sora; src: url(sora.ttf); font-weight: 100 800; font-display: swap; }
+:root { color-scheme: dark; --bg: #070913; --text: #eef1ff; --muted: #aab2d8; --line: #ffffff24; --glass: #141a31b8;
+  --cyan: #00f0ff; --ink: #00363a; --amber: #ff9f1a; --red: #ff3b4e; --pink: #f43f9a; }
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body { margin: 0; color: var(--text); font: 16px/1.5 Sora, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+#mesh { position: absolute; inset: 0 0 auto; width: 100%; height: 470px; cursor: pointer; touch-action: pan-y;
+  -webkit-mask: linear-gradient(#000 68%, transparent); mask: linear-gradient(#000 68%, transparent); }
+main { position: relative; max-width: 860px; margin: auto; pointer-events: none;
+  padding: 0 max(16px, env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+main a { pointer-events: auto; color: inherit; text-decoration: none; }
+a:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+header { height: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+h1 { margin: 0; font: 400 clamp(84px, 22vw, 132px)/1 Tokko, Sora, sans-serif; text-shadow: 0 4px 34px #070913, 0 0 60px #00f0ff55; }
+header p { text-wrap: balance; margin: 10px 0 0; font-size: 19px; font-weight: 600; text-shadow: 0 1px 12px #070913; }
+#hint { font-size: 14px; font-weight: 400; color: var(--muted); min-height: 21px; margin-top: 6px; }
+.grid { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+.card { position: relative; min-width: 0; border-radius: 24px; padding: 22px; background: var(--glass); border: 1px solid var(--line);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: transform .2s, border-color .2s, box-shadow .2s; }
+.card:has(> .main:hover) { transform: translateY(-3px); border-color: var(--c); box-shadow: 0 14px 50px -18px var(--c); }
+.card:has(> .main:active) { transform: scale(.985); }
+.card > .main { display: flex; align-items: center; gap: 16px; }
+.card > .main::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.card > .main:focus-visible { outline: 0; }
+.card > .main:focus-visible::after { outline: 3px solid var(--cyan); outline-offset: 3px; }
+.logo { flex: none; width: 60px; height: 60px; border-radius: 18px; display: grid; place-items: center; }
+.logo svg { width: 32px; height: 32px; }
+h2 { margin: 0; font-size: 21px; line-height: 1.2; }
+.main small { display: block; font-size: 14px; color: var(--muted); margin-top: 3px; }
+.txt { min-width: 0; flex: 1; }
+.desc { margin: 16px 0 0; color: #cfd5f2; }
+.cta { display: inline-block; white-space: nowrap; font-weight: 700; font-size: 15px; padding: 12px 18px; border-radius: 14px; }
+.play { --c: var(--cyan); grid-column: 1 / -1; border-color: #00f0ff66; background: linear-gradient(115deg, #062c3aee, #141a31cc 62%); }
+.play .logo { background: #fff; width: 72px; height: 72px; border-radius: 20px; }
+.play .logo svg { width: 40px; height: 40px; }
+.play h2 { font-size: 25px; }
+.play .cta { background: var(--cyan); color: var(--ink); }
+.modes { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 18px 0 0; padding: 0; }
+.modes li { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 600; padding: 6px 12px; border-radius: 6px; background: #ffffff10; }
+.modes i { width: 10px; height: 10px; border-radius: 3px; background: var(--m); }
+.yt { --c: var(--red); grid-column: 1 / -1; }
+.yt .logo { background: #f03; }
+.yt .cta { background: #ffffff16; }
+.vids { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; position: relative; z-index: 1; }
+.vids a { min-width: 0; font-size: 14px; font-weight: 600; line-height: 1.3; }
+.vids span.pic { position: relative; display: block; aspect-ratio: 9/14; border-radius: 14px; overflow: hidden; margin-bottom: 8px; border: 1px solid var(--line); }
+.vids img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s; }
+.vids a:hover img { transform: scale(1.06); }
+.pic svg { position: absolute; right: 8px; bottom: 8px; width: 30px; height: 30px; padding: 8px; border-radius: 50%; background: #070913d9; fill: #fff; }
+.ig { --c: var(--pink); grid-column: 1 / -1; background: linear-gradient(115deg, #3a0f3ccc, #2b1330cc 45%, #33200fcc); }
+.ig .logo { background: linear-gradient(45deg, #feda75, #fa7e1e 25%, #d62976 55%, #962fbf 80%, #4f5bd5); }
+.ig .cta { background: #fff; color: #7a1552; }
+footer { text-align: center; margin-top: 28px; font-size: 14px; color: var(--muted); }
+footer a { display: inline-block; padding: 12px; text-decoration: underline; text-underline-offset: 3px; }
+[lang=en]:not(html) { display: none; }
+html.en [lang=es] { display: none; }
+html.en [lang=en]:not(html) { display: revert; }
+@media (max-width: 620px) {
+  header { height: 330px; }
+  .card { padding: 18px; }
+  .play .main, .ig .main { flex-wrap: wrap; }
+  .play .cta, .ig .cta { width: 100%; text-align: center; }
+  .yt .cta { display: none; }
+  .vids { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 132px; overflow-x: auto; margin-inline: -18px; padding-inline: 18px;
+    scroll-padding: 18px; scroll-snap-type: x mandatory; scrollbar-width: none; pointer-events: auto; }
+  .vids a { scroll-snap-align: start; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+<script>if (!/^(es|ca|eu|gl|oc)/i.test(navigator.language || "")) { document.documentElement.className = "en"; document.documentElement.lang = "en"; }</script>
+</head><body>
+<canvas id="mesh" aria-hidden="true"></canvas>
+<main>
+<header>
+  <h1>Tokko</h1>
+  <p><span lang="es">¿Quién empieza? Que decida Tokko.</span><span lang="en">Who goes first? Let Tokko decide.</span></p>
+  <p id="hint"><span lang="es">Toca la malla y pruébalo</span><span lang="en">Tap the mesh and try it</span></p>
+</header>
+<div class="grid">
+  <section class="card play">
+    <a class="main" href="https://chapa03.github.io/tokko-privacy/play/">
+      <span class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#00a0ff" d="M1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087z"/><path fill="#ffbc00" d="m22.018 13.298-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594z"/><path fill="#00d26a" d="m13.544 10.989 3.258-3.238L3.45.195a1.466 1.466 0 0 0-.946-.179z"/><path fill="#ff3a44" d="m13.544 13.056-11 10.933c.298.036.612-.016.906-.183l13.324-7.54z"/></svg></span>
+      <span class="txt"><h2><span lang="es">Llévate Tokko</span><span lang="en">Get Tokko</span></h2><small><span lang="es">Gratis en Google Play, para Android</span><span lang="en">Free on Google Play, for Android</span></small></span>
+      <span class="cta"><span lang="es">Descargar gratis</span><span lang="en">Download for free</span></span>
+    </a>
+    <ul class="modes">
+      <li style="--m:#00dbe9"><i></i>Touch</li>
+      <li style="--m:#c084fc"><i></i><span lang="es">Dados</span><span lang="en">Dice</span></li>
+      <li style="--m:#f472b6"><i></i><span lang="es">Ruleta</span><span lang="en">Roulette</span></li>
+      <li style="--m:#f59e0b"><i></i>Crono</li>
+      <li style="--m:#00e5a3"><i></i>Play</li>
+    </ul>
+  </section>
+  <section class="card yt">
+    <a class="main" href="https://www.youtube.com/@chapa03dev">
+      <span class="logo"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
+      <span class="txt"><h2>YouTube</h2><small><span lang="es">Tokko en acción, en vídeos cortos</span><span lang="en">Tokko in action, in short videos</span></small></span>
+      <span class="cta"><span lang="es">Ver el canal</span><span lang="en">See the channel</span></span>
+    </a>
+    <div class="vids">
+      <a href="https://www.youtube.com/shorts/UUvsjAf-8cc"><span class="pic"><img src="play.jpg" alt="" width="360" height="640"><svg viewBox="0 0 12 12"><path d="M2 0l10 6-10 6z"/></svg></span><span lang="es">Tu marcador y tu reloj</span><span lang="en">Scoreboard and clock</span></a>
+      <a href="https://www.youtube.com/shorts/kQwI8IjLGnc"><span class="pic"><img src="amigos.jpg" alt="" width="360" height="640"><svg viewBox="0 0 12 12"><path d="M2 0l10 6-10 6z"/></svg></span><span lang="es">Cuatro amigos y un plan</span><span lang="en">Four friends and a plan</span></a>
+      <a href="https://www.youtube.com/shorts/vyq47Y7p8sQ"><span class="pic"><img src="dados.jpg" alt="" width="360" height="640"><svg viewBox="0 0 12 12"><path d="M2 0l10 6-10 6z"/></svg></span><span lang="es">¿Y los dados?</span><span lang="en">Where are the dice?</span></a>
+      <a href="https://www.youtube.com/shorts/8SN6g3suMXw"><span class="pic"><img src="touch.jpg" alt="" width="360" height="640"><svg viewBox="0 0 12 12"><path d="M2 0l10 6-10 6z"/></svg></span><span lang="es">¿Quién invita?</span><span lang="en">Who’s paying?</span></a>
+    </div>
+  </section>
+  <section class="card ig">
+    <a class="main" href="https://www.instagram.com/tokko.app/">
+      <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6"/><circle cx="12" cy="12" r="4.6"/><circle cx="17.6" cy="6.4" r="1.3" fill="#fff" stroke="none"/></svg></span>
+      <span class="txt"><h2>Instagram</h2><small><span lang="es">@tokko.app · novedades, reels e historias</span><span lang="en">@tokko.app · news, reels and stories</span></small></span>
+      <span class="cta"><span lang="es">Seguir a @tokko.app</span><span lang="en">Follow @tokko.app</span></span>
+    </a>
+  </section>
+</div>
+<footer><a href="https://chapa03.github.io/tokko-privacy/"><span lang="es">Privacidad</span><span lang="en">Privacy</span></a></footer>
+</main>
+<script>
+// La malla de Tokko en pequeño: cada toque apoya un «dedo»; con dos o más, 3 s de cuenta atrás y se elige uno.
+(function () {
+  var cv = document.getElementById("mesh"), g = cv.getContext("2d"), W, H, dpr, toks = [], start = 0, won = null, wonAt = 0, next = 0;
+  var still = matchMedia("(prefers-reduced-motion: reduce)").matches, raf = 0, visible = true, demo = true;
+  var COL = ["#00dbe9", "#f59e0b", "#f472b6", "#c084fc", "#00e5a3", "#3b82f6", "#e8d532", "#e83251"];
+  var hint = document.getElementById("hint"), hint0 = hint.innerHTML, en = document.documentElement.className === "en";
+  function resize() {
+    dpr = Math.min(2, devicePixelRatio || 1); var w0 = W; W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr;
+    if (w0) toks.forEach(function (t) { t.x *= W / w0; }); run();
+  }
+  function add(x, y, t) {
+    if (toks.length >= 8) return;
+    toks.push({ x: x, y: y, at: t, c: COL[next++ % COL.length], sides: [6, 4, 0, 3, 5][(next - 1) % 5], rot: next });
+    if (toks.length > 1) start = t;
+  }
+  function poly(x, y, r, n, a) {
+    g.beginPath(); if (!n) { g.arc(x, y, r * .92, 0, 7); return; }
+    var p = []; for (var i = 0; i < n; i++) { var k = a + i * 6.2832 / n; p.push([x + r * Math.cos(k), y + r * Math.sin(k)]); }
+    g.moveTo((p[0][0] + p[n - 1][0]) / 2, (p[0][1] + p[n - 1][1]) / 2);
+    for (i = 0; i < n; i++) { var q = p[(i + 1) % n]; g.arcTo(p[i][0], p[i][1], q[0], q[1], r * .22); }
+    g.closePath();
+  }
+  function warp(x, y, t) {
+    var dx = 0, dy = Math.sin(x * .012 + t * .0007) * 3;
+    for (var i = 0; i < toks.length; i++) {
+      var k = toks[i], ax = x - k.x, ay = y - k.y, d = Math.sqrt(ax * ax + ay * ay) + .01, s = Math.min(1, (t - k.at) / 350);
+      if (won && won !== k) s *= .25; var f = 26 * s * Math.exp(-d * d / 9000) * Math.min(1, d / 40); dx += ax / d * f; dy += ay / d * f;
+    }
+    if (won) { ax = x - won.x; ay = y - won.y; d = Math.sqrt(ax * ax + ay * ay) + .01; var R = (t - wonAt) * .5, w = d - R; f = 16 * Math.exp(-w * w / 1500) * Math.max(0, 1 - R / 900); dx += ax / d * f; dy += ay / d * f; }
+    return [x + dx, y + dy];
+  }
+  function draw(t) {
+    raf = 0; g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = "#070913"; g.fillRect(0, 0, W, H);
+    var r = g.createRadialGradient(W / 2, 0, 0, W / 2, 0, Math.max(W * .6, 380)); r.addColorStop(0, "#123152"); r.addColorStop(1, "#07091300"); g.fillStyle = r; g.fillRect(0, 0, W, H);
+    g.strokeStyle = "rgba(0,200,215,.34)"; g.lineWidth = 1.1; g.beginPath();
+    var S = 38, x, y, p;
+    for (x = (W / 2) % S - S; x < W + S; x += S) for (y = -10; y <= H + 10; y += 10) { p = warp(x, y, t); y < 0 ? g.moveTo(p[0], p[1]) : g.lineTo(p[0], p[1]); }
+    for (y = S / 2; y < H + S; y += S) for (x = -10; x <= W + 10; x += 10) { p = warp(x, y, t); x < 0 ? g.moveTo(p[0], p[1]) : g.lineTo(p[0], p[1]); }
+    g.stroke();
+    if (start && !won && t - start >= 3000) {
+      won = toks[Math.floor(Math.random() * toks.length)]; wonAt = t;
+      if (!demo) hint.textContent = en ? "We have a winner! Tap to go again" : "¡Ya hay ganador! Toca para repetir";
+    }
+    toks.forEach(function (k) {
+      var s = still ? 1 : Math.min(1, (t - k.at) / 260); s = 1 - Math.pow(1 - s, 3); var R = 27 * s, al = 1;
+      if (won) { if (won === k) R *= 1.22 + .05 * Math.sin((t - wonAt) / 160); else al = Math.max(.16, 1 - (t - wonAt) / 400); }
+      g.globalAlpha = al; var a = g.createRadialGradient(k.x, k.y, 0, k.x, k.y, R * 2.4); a.addColorStop(0, k.c + "66"); a.addColorStop(1, k.c + "00"); g.fillStyle = a; g.fillRect(k.x - 80, k.y - 80, 160, 160);
+      poly(k.x, k.y, R, k.sides, k.rot + (still ? 0 : t * .0004)); g.fillStyle = k.c + "d9"; g.fill(); g.strokeStyle = "#ffffff99"; g.lineWidth = 1.6; g.stroke();
+      g.lineWidth = 3.4; g.lineCap = "round"; g.strokeStyle = k.c + "38"; g.beginPath(); g.arc(k.x, k.y, 41 * s, 0, 6.2832); g.stroke();
+      var f = won ? (won === k ? 1 : 0) : start ? Math.min(1, (t - start) / 3000) : 0;
+      if (f) { g.strokeStyle = k.c; g.beginPath(); g.arc(k.x, k.y, 41 * s, -1.5708, -1.5708 + 6.2832 * f); g.stroke(); }
+      g.globalAlpha = 1;
+    });
+    if (visible && !still || start && !won) raf = requestAnimationFrame(draw);
+  }
+  function run() { if (!raf) raf = requestAnimationFrame(draw); }
+  cv.addEventListener("click", function (e) {
+    var t = performance.now(); if (demo || won) { toks = []; start = 0; won = null; demo = false; next = 0; }
+    var b = cv.getBoundingClientRect(); add(e.clientX - b.left, e.clientY - b.top, t);
+    if (toks.length < 2) hint.textContent = en ? "Tap once more to add another finger" : "Toca otra vez para añadir otro dedo";
+    else hint.textContent = en ? "Choosing…" : "Eligiendo…";
+    run();
+  });
+  resize(); addEventListener("resize", resize);
+  var t0 = performance.now(); add(W / 2 - Math.min(W * .36, 250), 92, t0); add(W / 2 + Math.min(W * .34, 260), 78, t0); add(W / 2 + Math.min(W * .3, 200), 306, t0);
+  if (still) start = 0;
+  new IntersectionObserver(function (e) { visible = e[0].isIntersecting; if (visible) run(); }).observe(cv);
+})();
+</script>
+</body></html>
