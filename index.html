@@ -46,7 +46,8 @@ h2 { margin: 0; font-size: 21px; line-height: 1.2; }
 .play { --c: var(--cyan); grid-column: 1 / -1; border-color: #00f0ff66; background: linear-gradient(115deg, #062c3aee, #141a31cc 62%); }
 .play .logo { background: #fff; width: 72px; height: 72px; border-radius: 20px; }
 .play .logo svg { width: 40px; height: 40px; }
-.play h2 { font-size: clamp(16px, 5.4vw, 25px); white-space: nowrap; }
+.play h2 { font-size: clamp(16px, 5.4vw, 25px); }
+@media (min-width: 360px) { .play h2 [lang=es] { white-space: nowrap; } }
 .play .cta { background: var(--cyan); color: var(--ink); }
 .modes { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 18px 0 0; padding: 0; }
 .modes li { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 600; padding: 6px 12px; border-radius: 6px; background: #ffffff10; }
